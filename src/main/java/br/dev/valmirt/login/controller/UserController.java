@@ -19,7 +19,7 @@ public class UserController {
 
     @PreAuthorize("hasAnyRole('USER')")
     @GetMapping("/list")
-    ResponseList<User> getUsers(@RequestParam(value = "page", defaultValue = "0")
+    public ResponseList<User> getUsers(@RequestParam(value = "page", defaultValue = "0")
                                 int page,
                                 @RequestParam(value = "size", defaultValue = "20")
                                 int size){
@@ -28,25 +28,25 @@ public class UserController {
 
     @PreAuthorize("hasAnyRole('USER')")
     @GetMapping("find/{userId}")
-    User getUser (@PathVariable Long userId) {
+    public User getUser (@PathVariable Long userId) {
         return userService.getUser(userId);
     }
 
     @PostMapping("/save")
-    User saveUser(@Valid @RequestBody User user){
+    public User saveUser(@Valid @RequestBody User user){
         user.setId(0L);
         return userService.saveUser(user);
     }
 
     @PreAuthorize("hasAnyRole('USER')")
     @PutMapping("/update")
-    User updateUser(@RequestBody User user){
+    public User updateUser(@RequestBody User user){
         return userService.saveUser(user);
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
     @PutMapping("/save-adm")
-    String saveAdm(@RequestBody User user) {
+    public String saveAdm(@RequestBody User user) {
         userService.saveAdm(user);
 
         return "MS01";
@@ -54,7 +54,7 @@ public class UserController {
 
     @PreAuthorize("hasAnyRole('USER')")
     @DeleteMapping("delete/{userId}")
-    String deleteUser(@PathVariable Long userId) {
+    public String deleteUser(@PathVariable Long userId) {
         userService.deleteUser(userId);
 
         return "MS01";
