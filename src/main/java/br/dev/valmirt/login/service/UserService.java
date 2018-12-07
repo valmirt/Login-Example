@@ -16,5 +16,7 @@ public interface UserService {
 
     UserSpringSecurity getUserAuthenticated();
 
-    void saveAdm(User user);
+    void changeAuthorities(Long id);
+
+    void changeSituation(Long id);
 }

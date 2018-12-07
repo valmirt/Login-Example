@@ -27,7 +27,7 @@ public class UserController {
     }
 
     @PreAuthorize("hasAnyRole('USER')")
-    @GetMapping("find/{userId}")
+    @GetMapping("{userId}/details")
     public User getUser (@PathVariable Long userId) {
         return userService.getUser(userId);
     }
@@ -45,19 +45,27 @@ public class UserController {
     }
 
     @PreAuthorize("hasAnyRole('ADMIN')")
-    @PutMapping("/save-adm")
-    public String saveAdm(@RequestBody User user) {
-        userService.saveAdm(user);
+    @GetMapping("{userId}/authority")
+    public String changeAuthorities(@PathVariable Long userId) {
+        userService.changeAuthorities(userId);
 
-        return "MS01";
+        return "Successful! Changed user authorities with id " + userId;
+    }
+
+    @PreAuthorize("hasAnyRole('ADMIN')")
+    @GetMapping("{userId}/situation")
+    public String changeSituation(@PathVariable Long userId) {
+        userService.changeSituation(userId);
+
+        return "Successful! Changed user situation with id " + userId;
     }
 
     @PreAuthorize("hasAnyRole('USER')")
-    @DeleteMapping("delete/{userId}")
+    @DeleteMapping("{userId}/delete")
     public String deleteUser(@PathVariable Long userId) {
         userService.deleteUser(userId);
 
-        return "MS01";
+        return "User deleted - id:" + userId;
     }
 
 }

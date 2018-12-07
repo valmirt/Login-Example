@@ -18,9 +18,9 @@ public class JWTAuthenticationFailureHandler implements AuthenticationFailureHan
     }
 
     private String json() {
-        long date = new Date().getTime();
-        return "{\"timestamp\": " + date + ", "
-                + "\"status\": 401, "
-                + "\"message\": \"ME17\" }";
+        Date date = new Date(System.currentTimeMillis());
+        return "{\"status\": 401, "
+                + "\"message\": \"Invalid email or password\", "
+                + "\"date\": \"" + date + "\" }";
     }
 }

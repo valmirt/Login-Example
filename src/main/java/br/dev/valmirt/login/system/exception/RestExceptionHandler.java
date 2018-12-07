@@ -2,24 +2,22 @@ package br.dev.valmirt.login.system.exception;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.access.AccessDeniedException;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 
+import java.util.Date;
+
 @ControllerAdvice
 public class RestExceptionHandler {
-    // Add an exception handler for CustomerNotFoundException
 
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleException(NotFoundException exc) {
 
-        // create CustomerErrorResponse
-
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.NOT_FOUND.value(),
                 exc.getMessage(),
-                System.currentTimeMillis());
-
-        // return ResponseEntity
+                new Date(System.currentTimeMillis()));
 
         return new ResponseEntity<>(error, HttpStatus.NOT_FOUND);
     }
@@ -27,14 +25,10 @@ public class RestExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleException(AuthorizationException exc) {
 
-        // create CustomerErrorResponse
-
         ErrorResponse error = new ErrorResponse(
                 HttpStatus.FORBIDDEN.value(),
                 exc.getMessage(),
-                System.currentTimeMillis());
-
-        // return ResponseEntity
+                new Date(System.currentTimeMillis()));
 
         return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
     }
@@ -42,33 +36,22 @@ public class RestExceptionHandler {
     @ExceptionHandler
     public ResponseEntity<ErrorResponse> handleException(DataException exc) {
 
-        // create CustomerErrorResponse
-
         ErrorResponse error = new ErrorResponse(
-                HttpStatus.BAD_REQUEST.value(),
+                HttpStatus.PRECONDITION_FAILED.value(),
                 exc.getMessage(),
-                System.currentTimeMillis());
+                new Date(System.currentTimeMillis()));
 
-        // return ResponseEntity
-
-        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
+        return new ResponseEntity<>(error, HttpStatus.PRECONDITION_FAILED);
     }
 
+    @ExceptionHandler
+    public ResponseEntity<ErrorResponse> handleException(AccessDeniedException exc) {
 
-//    // Add another exception handler ... to catch any exception (catch all)
-//
-//    @ExceptionHandler
-//    public ResponseEntity<ErrorResponse> handleException(Exception exc) {
-//
-//        // create CustomerErrorResponse
-//
-//        ErrorResponse error = new ErrorResponse(
-//                HttpStatus.BAD_REQUEST.value(),
-//                exc.getMessage(),
-//                System.currentTimeMillis());
-//
-//        // return ResponseEntity
-//
-//        return new ResponseEntity<>(error, HttpStatus.BAD_REQUEST);
-//    }
+        ErrorResponse error = new ErrorResponse(
+                HttpStatus.FORBIDDEN.value(),
+                exc.getMessage(),
+                new Date(System.currentTimeMillis()));
+
+        return new ResponseEntity<>(error, HttpStatus.FORBIDDEN);
+    }
 }

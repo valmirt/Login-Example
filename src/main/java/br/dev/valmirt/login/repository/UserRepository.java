@@ -15,4 +15,7 @@ public interface UserRepository extends JpaRepository<User, Long> {
 
     @Query("SELECT u FROM User u WHERE u.situation = br.dev.valmirt.login.model.Situation.ACTIVE")
     List<User> findAllActive ();
+
+    @Query("SELECT u FROM User u WHERE u.admAuth = true ")
+    List<User> findAllAdm ();
 }

@@ -2,6 +2,7 @@ package br.dev.valmirt.login.security;
 
 import br.dev.valmirt.login.model.User;
 import br.dev.valmirt.login.service.UserDetailsServiceImpl;
+import br.dev.valmirt.login.system.exception.AuthorizationException;
 import br.dev.valmirt.login.system.exception.JWTAuthenticationFailureHandler;
 import br.dev.valmirt.login.utils.JWTUtil;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -37,6 +38,7 @@ public class JWTAuthenticationFilter extends UsernamePasswordAuthenticationFilte
     public Authentication attemptAuthentication(HttpServletRequest request, HttpServletResponse response) throws AuthenticationException {
         try{
             User user = new ObjectMapper().readValue(request.getInputStream(), User.class);
+            request.setAttribute("email", user.getEmail());
             UsernamePasswordAuthenticationToken authenticationToken = new UsernamePasswordAuthenticationToken(user.getEmail(), user.getPassword());
 
             return authenticationManager.authenticate(authenticationToken);

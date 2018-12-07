@@ -25,10 +25,6 @@ public class User extends AuditModel {
     private String name;
 
     @NotEmpty()
-    @Column(unique = true, nullable = false)
-    private String cpf;
-
-    @NotEmpty()
     @Column(unique = true)
     @Email()
     private String email;
@@ -46,7 +42,6 @@ public class User extends AuditModel {
     public User(@NotEmpty() String nickname, String name, @NotEmpty() String cpf, @NotEmpty() String email, String password, String token) {
         this.nickname = nickname;
         this.name = name;
-        this.cpf = cpf;
         this.email = email;
         this.password = password;
         this.token = token;
@@ -74,14 +69,6 @@ public class User extends AuditModel {
 
     public void setName(String name) {
         this.name = name;
-    }
-
-    public String getCpf() {
-        return cpf;
-    }
-
-    public void setCpf(String cpf) {
-        this.cpf = cpf;
     }
 
     public String getEmail() {

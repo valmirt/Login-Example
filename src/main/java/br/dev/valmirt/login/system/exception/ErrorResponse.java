@@ -1,16 +1,18 @@
 package br.dev.valmirt.login.system.exception;
 
+import java.util.Date;
+
 public class ErrorResponse {
     private int status;
     private String message;
-    private Long timeStamp;
+    private Date date;
 
     public ErrorResponse(){}
 
-    public ErrorResponse(int status, String message, Long timeStamp) {
+    public ErrorResponse(int status, String message, Date date) {
         this.status = status;
         this.message = message;
-        this.timeStamp = timeStamp;
+        this.date = date;
     }
 
     public int getStatus() {
@@ -29,11 +31,11 @@ public class ErrorResponse {
         this.message = message;
     }
 
-    public Long getTimeStamp() {
-        return timeStamp;
+    public Date getDate() {
+        return date;
     }
 
-    public void setTimeStamp(Long timeStamp) {
-        this.timeStamp = timeStamp;
+    public void setDate(Date date) {
+        this.date = date;
     }
 }

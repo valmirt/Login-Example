@@ -8,6 +8,7 @@ import br.dev.valmirt.login.security.UserSpringSecurity;
 import br.dev.valmirt.login.system.exception.AuthorizationException;
 import br.dev.valmirt.login.system.exception.DataException;
 import br.dev.valmirt.login.system.exception.NotFoundException;
+import br.dev.valmirt.login.utils.Utils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
@@ -29,13 +30,13 @@ public class UserServiceImpl implements UserService {
         List<User> current = userRepository.findAllActive();
         ResponseList<User> temp = new ResponseList<>();
 
-        int totalPages = (current.size()/size);
+        int totalPages = (current.size() / size);
 
         List<User> aux;
         if (page == totalPages) {
-            aux = current.subList(page*size, (page*size)+current.size() % size);
+            aux = current.subList(page * size, (page * size) + current.size() % size);
         } else {
-            aux = current.subList(page*size, ((page*size)+(size)));
+            aux = current.subList(page * size, ((page * size) + (size)));
         }
 
         temp.setCurrentPage(page);
@@ -50,18 +51,18 @@ public class UserServiceImpl implements UserService {
     public User getUser(Long id) {
         UserSpringSecurity temp = getUserAuthenticated();
 
-        if (temp == null){
-            throw new AuthorizationException("Acesso Negado");
+        if (Utils.isNullOrEmpty(temp)) {
+            throw new AuthorizationException("Access denied!");
         } else {
             if (!temp.hasRole("ROLE_ADMIN")) {
                 if (!id.equals(temp.getId())) {
-                    throw new AuthorizationException("Acesso Negado");
+                    throw new AuthorizationException("Access denied!");
                 }
                 return userRepository.findById(id)
                         .orElseThrow(() -> new NotFoundException("User not found - id: " + id));
             }
             return userRepository.findById(id)
-                    .orElseThrow(()-> new NotFoundException("User not found - id: "+id));
+                    .orElseThrow(() -> new NotFoundException("User not found - id: " + id));
         }
     }
 
@@ -80,58 +81,68 @@ public class UserServiceImpl implements UserService {
 
     @Override
     public UserSpringSecurity getUserAuthenticated() {
-        try{
+        try {
             return (UserSpringSecurity) SecurityContextHolder
                     .getContext()
                     .getAuthentication()
                     .getPrincipal();
-        } catch (Exception e) { return null; }
+        } catch (Exception e) {
+            return null;
+        }
     }
 
     @Override
-    public void saveAdm(User user) {
-        User temp = getUser(user.getId());
+    public void changeAuthorities(Long id) {
+        UserSpringSecurity temp = getUserAuthenticated();
+        if (!Utils.isNullOrEmpty(temp) && temp.getId().equals(id)){
+            throw new DataException("Error! Impossible change self authority.");
+        }
+        User temp2 = getUser(id);
 
-        if (temp.getSituation() == Situation.ACTIVE){
-            temp.setAdmAuth(true);
-            userRepository.save(temp);
-        } else throw new DataException("Attempt to make inactivated user an administrator");
+        if (temp2.getSituation() == Situation.ACTIVE) {
+            temp2.setAdmAuth(!temp2.getAdmAuth());
+            userRepository.save(temp2);
+        } else throw new DataException("Error! Attempt to change authority of an inactive user");
+    }
+
+    @Override
+    public void changeSituation(Long id) {
+        UserSpringSecurity temp = getUserAuthenticated();
+        if (!Utils.isNullOrEmpty(temp) && temp.getId().equals(id)){
+            throw new DataException("Error! Impossible change self situation.");
+        }
+        User temp2 = getUser(id);
+
+        temp2.setSituation(temp2.getSituation().equals(Situation.ACTIVE) ?
+                Situation.INACTIVE :
+                Situation.ACTIVE);
+        userRepository.save(temp2);
     }
 
     private User updateUserData(User user) {
         User temp = getUser(user.getId());
 
-        if (user.getNickname() != null &&
+        if (!Utils.isNullOrEmpty(user.getNickname()) &&
                 !temp.getNickname().equals(user.getNickname()))
             temp.setNickname(user.getNickname());
-        if (user.getName() != null &&
+        if (!Utils.isNullOrEmpty(user.getName()) &&
                 !temp.getName().equals(user.getName()))
             temp.setName(user.getName());
-        if (user.getEmail() != null &&
+        if (!Utils.isNullOrEmpty(user.getEmail()) &&
+                !Utils.isValidEmail(user.getEmail()) &&
                 !temp.getEmail().equals(user.getEmail()))
             temp.setEmail(user.getEmail());
-        if (user.getCpf() != null &&
-                !temp.getCpf().equals(user.getCpf()) &&
-                isValidCpf(user.getCpf()))
-            temp.setCpf(user.getCpf());
 
         return temp;
     }
 
     private User checkUserData(User user) {
-        if (user.getNickname().isEmpty()) throw new DataException("ME05");
-        if (isValidEmail(user.getEmail())) throw new DataException("ME02");
-        if (!isValidCpf(user.getCpf())) throw new DataException("ME05");
-        user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        if (Utils.isNullOrEmpty(user.getNickname())) throw new DataException("Error field nickname");
+        if (!Utils.isValidEmail(user.getEmail())) throw new DataException("Invalid email");
+        if (Utils.isValidPassword(user.getPassword()))
+            user.setPassword(bCryptPasswordEncoder.encode(user.getPassword()));
+        else throw new DataException("Password must contain letters and numbers and contain 6 to 15 characters");
 
         return user;
-    }
-
-    private boolean isValidEmail(String email) {
-        return false;
-    }
-
-    private boolean isValidCpf(String cpf) {
-        return true;
     }
 }
